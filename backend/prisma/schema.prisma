@@ -1,0 +1,91 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String         @id @default(uuid())
+  name           String
+  email          String         @unique
+  password       String
+  role           String         @default("citizen") // "citizen" or "admin"
+  adminLevel     String?        // "Country", "State", "District", "Block", "Panchayat", "Village"
+  adminRegion    String?        // e.g. name of the state, district, or block
+  country        String
+  state          String
+  district       String
+  block          String
+  panchayat      String
+  village        String
+  createdAt      DateTime       @default(now())
+  projects       Project[]      @relation("CreatedProjects")
+  verifications  Verification[]
+}
+
+model Project {
+  id             String            @id @default(uuid())
+  name           String
+  description    String
+  totalBudget    Float
+  status         String            @default("Proposed") // "Proposed", "In Progress", "Completed", "Suspended"
+  address        String
+  latitude       Float
+  longitude      Float
+  startDate      DateTime
+  endDate        DateTime
+  country        String
+  state          String
+  district       String
+  block          String
+  panchayat      String
+  village        String
+  creator        User              @relation("CreatedProjects", fields: [creatorId], references: [id])
+  creatorId      String
+  createdAt      DateTime          @default(now())
+  allocations    FundAllocation[]
+  materials      Material[]
+  verifications  Verification[]
+}
+
+model FundAllocation {
+  id          String            @id @default(uuid())
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  name        String            // e.g. "Labor", "Procurement"
+  amount      Float
+  description String?
+  parentId    String?           // For nested sub-allocations
+  parent      FundAllocation?   @relation("SubAllocations", fields: [parentId], references: [id], onDelete: Cascade)
+  children    FundAllocation[]  @relation("SubAllocations")
+  materials   Material[]
+}
+
+model Material {
+  id           String          @id @default(uuid())
+  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  name         String          // e.g. "Cement"
+  quantity     Float
+  unit         String          // e.g. "Bags"
+  unitCost     Float
+  totalCost    Float
+  supplier     String
+  allocation   FundAllocation? @relation(fields: [allocationId], references: [id], onDelete: SetNull)
+  allocationId String?
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  status     String   // "Completed" or "Not Completed"
+  comment    String
+  imageUrl   String
+  createdAt  DateTime @default(now())
+}

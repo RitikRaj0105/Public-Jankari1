@@ -1,0 +1,15 @@
+{
+  "name": "public-jankari",
+  "version": "1.0.0",
+  "description": "Public Jankari Full-Stack Platform",
+  "scripts": {
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend --legacy-peer-deps",
+    "seed": "npm run seed --prefix backend",
+    "backend": "npm run start --prefix backend",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
