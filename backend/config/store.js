@@ -3,6 +3,34 @@ const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
+// Helper to compile flat allocations list to recursive hierarchy tree
+function buildAllocationsTree(flatAllocations, flatMaterials) {
+  const map = {};
+  const roots = [];
+  
+  flatAllocations.forEach(node => {
+    node.children = [];
+    node.materials = [];
+    map[node.id] = node;
+  });
+
+  flatMaterials.forEach(mat => {
+    if (mat.allocationId && map[mat.allocationId]) {
+      map[mat.allocationId].materials.push(mat);
+    }
+  });
+
+  flatAllocations.forEach(node => {
+    if (node.parentId && map[node.parentId]) {
+      map[node.parentId].children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  return roots;
+}
+
 const store = {
   connectStore: async () => {
     try {
@@ -66,7 +94,6 @@ const store = {
     const where = {};
 
     if (userScope) {
-      // By default, citizens see projects within their own State or District
       where.state = userScope.state;
     }
 
@@ -82,9 +109,22 @@ const store = {
       ];
     }
 
-    return await prisma.project.findMany({
+    const list = await prisma.project.findMany({
       where,
+      include: {
+        allocations: true,
+        materials: true
+      },
       orderBy: { createdAt: 'desc' }
+    });
+
+    return list.map(project => {
+      const tree = buildAllocationsTree(project.allocations, project.materials);
+      return {
+        ...project,
+        budget: project.totalBudget,
+        allocationsTree: tree
+      };
     });
   },
 
@@ -106,35 +146,11 @@ const store = {
 
     if (!project) return null;
 
-    // Convert raw allocations to hierarchy
-    const map = {};
-    const roots = [];
-    project.allocations.forEach(node => {
-      node.children = [];
-      node.materials = [];
-      map[node.id] = node;
-    });
+    const tree = buildAllocationsTree(project.allocations, project.materials);
 
-    // Link materials to allocations
-    project.materials.forEach(mat => {
-      if (mat.allocationId && map[mat.allocationId]) {
-        map[mat.allocationId].materials.push(mat);
-      }
-    });
-
-    // Build parent-child tree
-    project.allocations.forEach(node => {
-      if (node.parentId && map[node.parentId]) {
-        map[node.parentId].children.push(node);
-      } else {
-        roots.push(node);
-      }
-    });
-
-    // Replace flat allocations with nested root nodes
     return {
       ...project,
-      allocationsTree: roots
+      allocationsTree: tree
     };
   },
 
@@ -210,7 +226,6 @@ const store = {
       orderBy: { createdAt: 'desc' }
     });
 
-    // Standardize user key for frontend compatibility
     return list.map(v => ({
       ...v,
       userId: v.user
@@ -228,33 +243,37 @@ const store = {
       where: { userId },
       include: {
         project: {
-          select: {
-            id: true,
-            name: true,
-            status: true,
-            address: true,
-            latitude: true,
-            longitude: true
+          include: {
+            allocations: true,
+            materials: true
           }
         }
       },
       orderBy: { createdAt: 'desc' }
     });
 
-    // Map project key for frontend compatibility
-    return list.map(v => ({
-      ...v,
-      projectId: v.project ? {
-        _id: v.project.id,
-        name: v.project.name,
-        status: v.project.status,
-        location: { 
-          address: v.project.address,
-          latitude: v.project.latitude,
-          longitude: v.project.longitude
+    return list.map(v => {
+      if (!v.project) return { ...v, projectId: null };
+      
+      const tree = buildAllocationsTree(v.project.allocations, v.project.materials);
+      
+      return {
+        ...v,
+        projectId: {
+          _id: v.project.id,
+          name: v.project.name,
+          status: v.project.status,
+          description: v.project.description,
+          totalBudget: v.project.totalBudget,
+          location: { 
+            address: v.project.address,
+            latitude: v.project.latitude,
+            longitude: v.project.longitude
+          },
+          allocationsTree: tree
         }
-      } : null
-    }));
+      };
+    });
   },
 
   createVerification: async (verData, userId) => {
@@ -303,7 +322,6 @@ const store = {
       }
     });
 
-    // Map projects list to match frontend expectations
     const projectsList = projects.map(p => ({
       _id: p.id,
       name: p.name,
