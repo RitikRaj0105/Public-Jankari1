@@ -62,8 +62,11 @@ function AppContent() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200/80 py-6 text-center text-slate-400 text-xs font-semibold">
-        <p>&copy; {new Date().getFullYear()} Public Jankari Accountability Portal. Built for ground transparency.</p>
+      <footer className="bg-gradient-to-r from-slate-50 to-slate-100 border-t border-slate-200/80 py-8 text-center">
+        <div className="max-w-7xl mx-auto px-4 space-y-2">
+          <p className="text-slate-500 text-xs font-bold">&copy; {new Date().getFullYear()} Public Jankari Accountability Portal</p>
+          <p className="text-slate-400 text-[10px] font-semibold tracking-wide">Built for ground-level transparency & citizen empowerment 🇮🇳</p>
+        </div>
       </footer>
     </div>
   );

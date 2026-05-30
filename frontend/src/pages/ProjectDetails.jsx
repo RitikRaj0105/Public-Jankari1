@@ -28,7 +28,7 @@ function TreeNode({ node, formatBudget }) {
   const isExpandable = hasChildren || hasMaterials;
 
   return (
-    <div className="pl-4 border-l-2 border-slate-100/80 ml-2 mt-3 first:mt-0">
+    <div className="pl-4 border-l-2 border-blue-200/60 ml-2 mt-3 first:mt-0">
       
       {/* 📁 Allocation Node Header */}
       <div 
@@ -229,11 +229,11 @@ export default function ProjectDetails({ projectId, onBack }) {
   };
 
   const formatBudget = (value) => {
-    if (!value) return '';
-    if (value >= 10000000) {
-      return `₹${(value / 10000000).toFixed(2)} Cr`;
-    }
-    return `₹${(value / 100000).toFixed(2)} Lakh`;
+    if (!value && value !== 0) return '₹0';
+    if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
+    if (value >= 100000) return `₹${(value / 100000).toFixed(2)} Lakh`;
+    if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+    return `₹${value.toLocaleString('en-IN')}`;
   };
 
   if (loading) {
@@ -264,9 +264,9 @@ export default function ProjectDetails({ projectId, onBack }) {
       {/* ⬅️ Back button */}
       <button 
         onClick={onBack}
-        className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 font-bold text-sm bg-white border border-slate-200/80 px-4 py-2 rounded-xl shadow-sm hover:shadow transition-all cursor-pointer"
+        className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 font-bold text-sm bg-white border border-slate-200/80 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:-translate-x-1 transition-all duration-300 cursor-pointer group"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
         <span>Back to Projects</span>
       </button>
 
@@ -277,7 +277,8 @@ export default function ProjectDetails({ projectId, onBack }) {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Card 1: Project Details */}
-          <div className="bg-white border border-slate-200/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="bg-white border border-slate-200/60 rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow duration-300 relative overflow-hidden space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
             
             {/* Header info */}
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -357,6 +358,24 @@ export default function ProjectDetails({ projectId, onBack }) {
                 <span>Fund & Materials Utilization Hierarchy</span>
               </h2>
               <p className="text-slate-500 text-xs mt-1">Click folders below to inspect sub-allocations, quantity specifications, and suppliers.</p>
+              {project.allocationsTree && project.allocationsTree.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-slate-500">Budget Allocated via Hierarchy</span>
+                    <span className="text-slate-700">
+                      {formatBudget(project.allocationsTree.reduce((sum, n) => sum + (n.amount || 0), 0))} / {formatBudget(project.totalBudget)}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((project.allocationsTree.reduce((sum, n) => sum + (n.amount || 0), 0) / project.totalBudget) * 100, 100)}%` }}
+                      transition={{ duration: 1, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {!project.allocationsTree || project.allocationsTree.length === 0 ? (

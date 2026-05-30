@@ -17,7 +17,7 @@ export default function Navbar({ setCurrentPage, currentPage }) {
         className="flex items-center space-x-3 cursor-pointer select-none group" 
         onClick={() => setCurrentPage('home')}
       >
-        <div className="bg-slate-950 text-white p-2.5 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-200">
+        <div className="bg-gradient-to-br from-slate-900 to-blue-900 text-white p-2.5 rounded-xl shadow-lg group-hover:scale-110 transition-all duration-300 ring-2 ring-blue-500/20">
           <Eye className="w-6 h-6 text-blue-400" />
         </div>
         <div>
@@ -38,7 +38,7 @@ export default function Navbar({ setCurrentPage, currentPage }) {
               onClick={() => setCurrentPage(item.id)}
               className={`flex items-center space-x-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 isActive
-                  ? 'bg-slate-900 text-white shadow-sm'
+                  ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-md ring-1 ring-slate-700/50'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -78,7 +78,7 @@ export default function Navbar({ setCurrentPage, currentPage }) {
             </button>
             <button
               onClick={() => setCurrentPage('register')}
-              className="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all"
+              className="flex items-center space-x-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow-lg transition-all duration-300"
             >
               <UserPlus className="w-4 h-4" />
               <span>Register</span>

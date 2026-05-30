@@ -91,20 +91,29 @@ export default function Home({ onSelectProject }) {
   }, [search, statusFilter, localOnly, user]);
 
   const formatBudget = (value) => {
-    if (value >= 10000000) {
-      return `₹${(value / 10000000).toFixed(2)} Cr`;
-    }
-    return `₹${(value / 100000).toFixed(2)} Lakh`;
+    if (!value && value !== 0) return '₹0';
+    if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
+    if (value >= 100000) return `₹${(value / 100000).toFixed(2)} Lakh`;
+    if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+    return `₹${value.toLocaleString('en-IN')}`;
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* 🚀 Header & Intro */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-        <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Public Project Audit Dashboard</h1>
-          <p className="text-slate-500 font-medium mt-1">
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 rounded-3xl p-8 md:p-12 text-white shadow-2xl">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-indigo-500 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+        </div>
+        <div className="relative z-10">
+          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-4">
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+            <span className="text-xs font-bold text-blue-200 uppercase tracking-wider">Live Monitoring Active</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">Public Project<br/><span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">Audit Dashboard</span></h1>
+          <p className="text-blue-200/80 font-medium mt-3 max-w-xl text-sm md:text-base leading-relaxed">
             Real-time visual monitoring and crowd-sourced ground verification for government public funds.
           </p>
         </div>
@@ -112,8 +121,8 @@ export default function Home({ onSelectProject }) {
 
       {/* 📊 KPI Dashboard Widgets */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 rounded-xl">
             <BarChart3 className="w-6 h-6" />
           </div>
           <div>
@@ -122,8 +131,8 @@ export default function Home({ onSelectProject }) {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 rounded-xl">
             <IndianRupee className="w-6 h-6" />
           </div>
           <div>
@@ -132,8 +141,8 @@ export default function Home({ onSelectProject }) {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
+        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-purple-50 to-fuchsia-50 text-purple-600 rounded-xl">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
@@ -144,8 +153,8 @@ export default function Home({ onSelectProject }) {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm flex items-center space-x-4">
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
+        <div className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4">
+          <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 text-amber-600 rounded-xl">
             <PlayCircle className="w-6 h-6" />
           </div>
           <div>
@@ -265,9 +274,10 @@ export default function Home({ onSelectProject }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
                 whileHover={{ y: -4, shadow: '0 20px 25px -5px rgba(0,0,0,0.05)' }}
-                className="bg-white border border-slate-200/60 hover:border-slate-300 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                className="relative overflow-hidden bg-white border border-slate-200/60 hover:border-slate-300 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all cursor-pointer group"
                 onClick={() => onSelectProject(project._id || project.id)}
               >
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="space-y-3">
                   {/* Status & Location Tag */}
                   <div className="flex justify-between items-center">

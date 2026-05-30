@@ -137,10 +137,11 @@ export default function Dashboard({ setCurrentPage, onSelectProject }) {
   };
 
   const formatBudget = (value) => {
-    if (value >= 10000000) {
-      return `₹${(value / 10000000).toFixed(2)} Cr`;
-    }
-    return `₹${(value / 100000).toFixed(2)} Lakh`;
+    if (!value && value !== 0) return '₹0';
+    if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
+    if (value >= 100000) return `₹${(value / 100000).toFixed(2)} Lakh`;
+    if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
+    return `₹${value.toLocaleString('en-IN')}`;
   };
 
   if (!user) {
@@ -183,8 +184,8 @@ export default function Dashboard({ setCurrentPage, onSelectProject }) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* 🚀 Header */}
-      <div>
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Citizen Dashboard</h1>
+      <div className="relative">
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Citizen <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Dashboard</span></h1>
         <p className="text-slate-500 font-medium mt-1">Track your verification activity, submissions, and account settings.</p>
       </div>
 
@@ -192,11 +193,11 @@ export default function Dashboard({ setCurrentPage, onSelectProject }) {
         
         {/* LEFT COLUMN: User Card & Settings */}
         <div className="space-y-6">
-          <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
+          <div className="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"></div>
             
             <div className="flex flex-col items-center text-center space-y-4 pt-4">
-              <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center border-2 border-slate-200 text-blue-600 shadow-inner">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-full flex items-center justify-center border-2 border-blue-200/50 text-blue-600 shadow-lg ring-4 ring-blue-50">
                 <User className="w-10 h-10" />
               </div>
               <div>
@@ -321,7 +322,7 @@ export default function Dashboard({ setCurrentPage, onSelectProject }) {
                 onClick={() => setActiveTab('audits')}
                 className={`pb-3 px-1 text-sm font-extrabold transition-all border-b-2 bg-transparent cursor-pointer border-none flex items-center space-x-2 ${
                   activeTab === 'audits'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-blue-600 text-blue-600 bg-blue-50/50 rounded-t-lg'
                     : 'border-transparent text-slate-400 hover:text-slate-900'
                 }`}
               >
@@ -332,7 +333,7 @@ export default function Dashboard({ setCurrentPage, onSelectProject }) {
                 onClick={() => setActiveTab('local-budgets')}
                 className={`pb-3 px-1 text-sm font-extrabold transition-all border-b-2 bg-transparent cursor-pointer border-none flex items-center space-x-2 ${
                   activeTab === 'local-budgets'
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-blue-600 text-blue-600 bg-blue-50/50 rounded-t-lg'
                     : 'border-transparent text-slate-400 hover:text-slate-900'
                 }`}
               >
