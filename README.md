@@ -1,2 +1,6 @@
-shdfudsfhiulhius fsg t7ydsf8 fvywetewy  f987wey8w eyfwe76we  gwg87ywer98a 7wetf87hw 98
-public jankari is fund 
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/USERNAME/REPOSITORY.git
+git push -u origin main
