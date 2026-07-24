@@ -9,13 +9,4 @@ for ($i = 0; $i -lt [Math]::Min($t.Length, 100000); $i++) {
     if ($code -eq 240) { $needsFix = $true; break }
 }
 
-if ($needsFix) {
-    $bytes = $w1252.GetBytes($t)
-    $newText = [System.Text.Encoding]::UTF8.GetString($bytes)
-    [System.IO.File]::WriteAllText($path, $newText, $u8)
-    Write-Host "OK - Fixed encoding" -ForegroundColor Green
-} else {
-    Write-Host "No mojibake found" -ForegroundColor Yellow
-}
-git commit -m "Initial commit
 
